@@ -1,0 +1,6 @@
+﻿  Platform.cpp
+C:\Users\nhiem.tran\source\repos\game\mario\mario\Platform.cpp(185,22): warning C4244: 'initializing': conversion from 'double' to 'Gdiplus::REAL', possible loss of data
+C:\Users\nhiem.tran\source\repos\game\mario\mario\Platform.cpp(186,22): warning C4244: 'initializing': conversion from 'int' to 'Gdiplus::REAL', possible loss of data
+C:\Users\nhiem.tran\source\repos\game\mario\mario\Platform.cpp(187,22): warning C4244: 'initializing': conversion from 'int' to 'Gdiplus::REAL', possible loss of data
+C:\Users\nhiem.tran\source\repos\game\mario\mario\Platform.cpp(188,22): warning C4244: 'initializing': conversion from 'int' to 'Gdiplus::REAL', possible loss of data
+  mario.vcxproj -> C:\Users\nhiem.tran\source\repos\game\mario\x64\Debug\mario.exe
