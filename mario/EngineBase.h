@@ -19,7 +19,7 @@ public:
 	void RemoveGameObject(GameObject* gameObj);
 
 	virtual void Logic(const double&);
-	void Draw(HDC);
+	void Draw(Gdiplus::Graphics&);
 
 	HBITMAP LoadImage(const LPCWSTR&);
 

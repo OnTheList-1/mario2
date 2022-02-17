@@ -10,7 +10,7 @@ class GameObject
 {
 public:
 	virtual void Logic(const double& delta) {};
-	virtual void Draw(HDC hdc) {};
+	virtual void Draw(Gdiplus::Graphics&) {};
 
 	Point getPosition();
 

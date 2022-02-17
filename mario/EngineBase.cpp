@@ -44,10 +44,10 @@ void EngineBase::Logic(const double& delta)
 		itr->Logic(delta);
 }
 
-void EngineBase::Draw(HDC hdc)
+void EngineBase::Draw(Gdiplus::Graphics& graphics)
 {
 	for (const auto& itr : listObject)
-		itr->Draw(hdc);
+		itr->Draw(graphics);
 }
 
 HBITMAP EngineBase::LoadImage(const LPCWSTR& file_path)

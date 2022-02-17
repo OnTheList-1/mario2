@@ -13,7 +13,7 @@ public:
 
 	void LoadBitmap(const LPCWSTR&);
 	void Logic(const double&) override;
-	void Draw(HDC) override;
+	void Draw(Gdiplus::Graphics&) override;
 
 	void Jump(const bool&);
 	void bottomCollision(const double& pos);

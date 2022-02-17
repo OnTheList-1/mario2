@@ -178,9 +178,14 @@ void Character::bottomCollision(const double& pos)
 	}
 }
 
-void Character::Draw(HDC hdc)
+void Character::Draw(Gdiplus::Graphics& graphics)
 {
-	LoadBitmapW(L"characters.png");
+	Gdiplus::Image imgCharacter(L"characters.png");
+
+	graphics.DrawImage(&imgCharacter, int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT), CHARACTER_WIDTH, CHARACTER_HEIGHT);
+
+
+	/*LoadBitmapW(L"characters.png");
 	if (!charBitmap)
 		MessageBox(nullptr, L"Can't locate character bitmap", nullptr, 0);
 
@@ -198,14 +203,23 @@ void Character::Draw(HDC hdc)
 		SetMapMode(hdc, GetMapMode(hdc));
 		GetObject(charBitmap, sizeof(BITMAP), (LPSTR)&bmp);
 
+
 		BitBlt(hdc,
 			int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT), CHARACTER_WIDTH, CHARACTER_TILE_HEIGHT,
 			compDc,
-			CHARACTER_WIDTH, 30,
-			SRCCOPY);
+			0, 0,
+			SRCAND);
+
+		BitBlt(hdc,
+			0, CHARACTER_TILE_HEIGHT, CHARACTER_WIDTH, CHARACTER_TILE_HEIGHT,
+			compDc,
+			0, 0,
+			SRCPAINT);
+
+
 		SelectObject(compDc, hNewBmp);
 	}
-	DeleteDC(compDc);
+	DeleteDC(compDc);*/
 
 }
 

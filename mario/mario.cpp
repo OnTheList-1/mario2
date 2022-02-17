@@ -7,7 +7,7 @@
 //#include "Character.h"
 #include "Engine.h"
 #include "Setting.h"
-
+#include "DoubleBuffering.h"
 
 #define MAX_LOADSTRING 100
 
@@ -16,9 +16,17 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HWND mainWindowHandle;							// mainWindowHandle
+
+// Function Declaration
+void MemoryBuffer(HDC);
+
+// Initialize Engine
 Engine* engine = new Engine();
-std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+// Initialize Gdiplus
+Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+ULONG_PTR gdiplusToken;
+
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -34,12 +42,14 @@ HBRUSH OnCtlColor(HWND, HDC, HWND, UINT);
 void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags);
 void OnKeyUp(HWND hwnd, UINT vk, BOOL fUp, int cRepeat, UINT flags);
 
+void DrawToDoubleBuffer(HDC, Gdiplus::Graphics*);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nCmdShow)
 {
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -69,6 +79,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
+
+	// Shut down Gdiplus
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return (int)msg.wParam;
 }
@@ -118,10 +131,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	mainWindowHandle = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
+
 	if (!mainWindowHandle)
 	{
 		return FALSE;
 	}
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	ShowWindow(mainWindowHandle, nCmdShow);
 	UpdateWindow(mainWindowHandle);
@@ -204,17 +219,11 @@ void OnDestroy(HWND hWnd)
 
 void OnPaint(HWND hWnd)
 {
+	// Initialize Paint
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 
-
-	end = std::chrono::steady_clock::now();
-	double delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
-	begin = end;
-
-
-	engine->Logic(delta);
-	engine->Draw(hdc);
+	MemoryBuffer(hdc);
 
 	InvalidateRect(hWnd, nullptr, false);
 	EndPaint(hWnd, &ps);
@@ -244,12 +253,35 @@ void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags)
 {
 
 	engine->KeyDown(vk);
-	//InvalidateRect(hwnd, nullptr, false);
+	InvalidateRect(hwnd, nullptr, false);
 }
 
 void OnKeyUp(HWND hwnd, UINT vk, BOOL fUp, int cRepeat, UINT flags)
 {
 	engine->KeyUp(vk);
-	//InvalidateRect(hwnd, nullptr, false);
+	InvalidateRect(hwnd, nullptr, false);
 
+}
+
+void MemoryBuffer(HDC hdc)
+{
+	// Initialize Double Buffer where we draw everything on Bitmap first
+	Gdiplus::Bitmap buffer(RESOLUTION_X, RESOLUTION_Y, PixelFormat32bppPARGB);
+	Gdiplus::Graphics memGraphics(&buffer);
+
+	// Initialize Game Elapsed Time
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	end = std::chrono::steady_clock::now();
+	double delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
+	begin = end;
+
+
+	// Draw every thing to gBuffer
+	engine->Logic(delta);
+	engine->Draw(memGraphics);
+
+	// Initialize the main graphic window
+	Gdiplus::Graphics graphics(hdc);
+	graphics.DrawImage(&buffer, 0, 0);
 }

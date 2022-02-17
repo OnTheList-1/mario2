@@ -146,62 +146,32 @@ Collision Platform::CharacterCollide(Character* character)
 	return cummulatedCollision;
 }
 
-void Platform::Draw(HDC hdc)
+void Platform::Draw(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	// Initialize Images for graphics
+	Gdiplus::Image cloudImg(L"clouds.png");
+	Gdiplus::Image tilesetImg(L"tileset.png");
 
-	Gdiplus::Graphics graphics(hdc);
-	double start_x = Engine::offset / 2.0;
+	// Draw the clouds and offset it by half to create a moving screen
+	int start_x = int(Engine::offset / 2.0);
 	while (start_x > RESOLUTION_X)
 		start_x -= RESOLUTION_X;
 
-	Gdiplus::Image imgCloud1(L"clouds.png");
-	Gdiplus::Image imgTileset(L"tileset.png");
+	graphics.DrawImage(&cloudImg,
+		0 - start_x, 0,
+		RESOLUTION_X - start_x, RESOLUTION_Y);
 
-	Gdiplus::RectF cloudsRect1(float(0 - start_x), 0.f,
-		float(RESOLUTION_X - start_x), (float)RESOLUTION_Y);
+	graphics.DrawImage(&cloudImg,
+		RESOLUTION_X - start_x, 0,
+		2 * RESOLUTION_X - start_x, RESOLUTION_Y);
 
-	Gdiplus::RectF cloudsRect2(float(RESOLUTION_X - start_x), 0.f,
-		float(2 * RESOLUTION_X - start_x), (float)RESOLUTION_Y);
 
-	graphics.DrawImage(&imgCloud1, cloudsRect1);
-	graphics.DrawImage(&imgCloud1, cloudsRect2);
-
-	// Draw Platform tiles
-	for (int i = 0; i < PLATFORM_HEIGHT; i++)
-	{
-		for (int j = 0; j < PLATFORM_WIDTH; j++)
-		{
-			if ((j + 1) * TILE_WIDTH >= Engine::offset && j * TILE_WIDTH < Engine::offset + RESOLUTION_X)
-			{
-				if (PlatformMatrix[i][j] != -1)
-				{
-
-					int posY = PlatformMatrix[i][j] / 7;
-					int posX = PlatformMatrix[i][j] % 7;
-
-					Gdiplus::REAL a = j * TILE_WIDTH - Engine::offset;
-					Gdiplus::REAL b = i * TILE_WIDTH;
-					Gdiplus::REAL c = posX * TILE_WIDTH;
-					Gdiplus::REAL d = posY * TILE_WIDTH;
-					Gdiplus::REAL e = TILE_WIDTH;
-					Gdiplus::REAL f = 50;
-					graphics.DrawImage(&imgTileset, a, b, e, f, c, d, Gdiplus::UnitWorld);
-
-				}
-			}
-		}
-	}
-
-	//if (img == nullptr)	MessageBox(nullptr, nullptr, nullptr, 0);
 	//if (tileSetImg == nullptr) // load image if it hasn't been loaded
 	//	tileSetImg = engine->LoadImageW(L"tileset.png");
 	//if (cloudsImg == nullptr)
 	//	cloudsImg = engine->LoadImageW(L"clouds.png");
 	//// Draw the clouds and offset it by half to create a moving screen
-	//int start_x = Engine::offset / 2.0;
+	//int start_x = int(Engine::offset / 2.0);
 	//while (start_x > RESOLUTION_X)
 	//	start_x -= RESOLUTION_X;
 
@@ -252,7 +222,7 @@ void Platform::Draw(HDC hdc)
 	//					int posX = PlatformMatrix[i][j] % 7;
 
 	//					BitBlt(hdc,
-	//						j * TILE_WIDTH - Engine::offset, i * TILE_WIDTH,
+	//						int(j * TILE_WIDTH - Engine::offset), i * TILE_WIDTH,
 	//						TILE_WIDTH, 50,
 	//						compDc1,
 	//						posX * TILE_WIDTH, posY * TILE_WIDTH,

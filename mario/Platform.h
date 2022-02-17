@@ -14,7 +14,7 @@ class Platform : public GameObject
 public:
 	Platform();
 
-	void Draw(HDC) override;
+	void Draw(Gdiplus::Graphics&) override;
 
 	Collision CharacterCollide(Character* character);
 
