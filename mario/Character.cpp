@@ -181,10 +181,9 @@ void Character::bottomCollision(const double& pos)
 void Character::Draw(Gdiplus::Graphics& graphics)
 {
 	Gdiplus::Image imgCharacter(L"characters.png");
+	Gdiplus::Graphics g(&imgCharacter);
 
 	graphics.DrawImage(&imgCharacter, int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT), CHARACTER_WIDTH, CHARACTER_HEIGHT);
-
-
 	/*LoadBitmapW(L"characters.png");
 	if (!charBitmap)
 		MessageBox(nullptr, L"Can't locate character bitmap", nullptr, 0);

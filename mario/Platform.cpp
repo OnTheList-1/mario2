@@ -165,7 +165,6 @@ void Platform::Draw(Gdiplus::Graphics& graphics)
 		RESOLUTION_X - start_x, 0,
 		2 * RESOLUTION_X - start_x, RESOLUTION_Y);
 
-
 	//if (tileSetImg == nullptr) // load image if it hasn't been loaded
 	//	tileSetImg = engine->LoadImageW(L"tileset.png");
 	//if (cloudsImg == nullptr)

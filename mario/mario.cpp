@@ -18,7 +18,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HWND mainWindowHandle;							// mainWindowHandle
 
 // Function Declaration
-void MemoryBuffer(HDC);
+void MemoryBuffer(HWND, HDC);
 
 // Initialize Engine
 Engine* engine = new Engine();
@@ -27,6 +27,9 @@ Engine* engine = new Engine();
 Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 ULONG_PTR gdiplusToken;
 
+// Initialize Server Time
+std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -77,6 +80,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+
+			// after amount of time
+			// send a wm_paint message
 		}
 	}
 
@@ -223,7 +229,8 @@ void OnPaint(HWND hWnd)
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 
-	MemoryBuffer(hdc);
+	MemoryBuffer(hWnd, hdc);
+
 
 	InvalidateRect(hWnd, nullptr, false);
 	EndPaint(hWnd, &ps);
@@ -263,25 +270,30 @@ void OnKeyUp(HWND hwnd, UINT vk, BOOL fUp, int cRepeat, UINT flags)
 
 }
 
-void MemoryBuffer(HDC hdc)
+void MemoryBuffer(HWND hwnd, HDC hdc)
 {
+	// Initialize main handle
+	Gdiplus::Graphics graphics(hdc);
+
 	// Initialize Double Buffer where we draw everything on Bitmap first
 	Gdiplus::Bitmap buffer(RESOLUTION_X, RESOLUTION_Y, PixelFormat32bppPARGB);
 	Gdiplus::Graphics memGraphics(&buffer);
 
 	// Initialize Game Elapsed Time
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
 	end = std::chrono::steady_clock::now();
 	double delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
 	begin = end;
 
 
-	// Draw every thing to gBuffer
+	// Draw everything to gBuffer
 	engine->Logic(delta);
 	engine->Draw(memGraphics);
 
+
+	//graphics.Clear(Gdiplus::Color::Transparent);
 	// Initialize the main graphic window
-	Gdiplus::Graphics graphics(hdc);
+	graphics.Clear(Gdiplus::Color(255, 255, 255));
 	graphics.DrawImage(&buffer, 0, 0);
+	//InvalidateRect(hwnd, nullptr, 0);
 }

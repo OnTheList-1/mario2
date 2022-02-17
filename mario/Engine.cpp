@@ -8,13 +8,13 @@ double Engine::offset = 0;
 
 Engine::Engine()
 {
-	// Initialize Platform
-	platform = new Platform();
-	AddGameObject(platform);
-
 	// Initialize Character
 	character = new Character();
 	AddGameObject(character);
+
+	// Initialize Platform
+	platform = new Platform();
+	AddGameObject(platform);
 
 	leftKeyPressed = false;
 	rightKeyPressed = false;
