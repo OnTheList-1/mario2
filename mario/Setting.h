@@ -6,8 +6,8 @@
 #define BACKGROUND_COLOR RGB(102, 255, 255)
 
 // size of character
-#define CHARACTER_WIDTH 50
-#define CHARACTER_HEIGHT 66
+#define CHARACTER_WIDTH 64
+#define CHARACTER_HEIGHT 100
 #define CHARACTER_TILE_HEIGHT 100
 
 // size of platform and tile

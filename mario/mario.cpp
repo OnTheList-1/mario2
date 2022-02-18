@@ -8,6 +8,10 @@
 #include "Engine.h"
 #include "Setting.h"
 #include "DoubleBuffering.h"
+#include "Menu.h"
+
+#include <uxtheme.h>
+#pragma comment (lib, "uxtheme.lib")
 
 #define MAX_LOADSTRING 100
 
@@ -22,6 +26,9 @@ void MemoryBuffer(HWND, HDC);
 
 // Initialize Engine
 Engine* engine = new Engine();
+
+// Initialize Menu
+Menu menu;
 
 // Initialize Gdiplus
 Gdiplus::GdiplusStartupInput gdiplusStartupInput;
@@ -41,7 +48,6 @@ bool OnCreate(HWND, LPCREATESTRUCT);
 void OnDestroy(HWND);
 void OnPaint(HWND);
 void OnCommand(HWND, int, HWND, UINT);
-HBRUSH OnCtlColor(HWND, HDC, HWND, UINT);
 void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags);
 void OnKeyUp(HWND hwnd, UINT vk, BOOL fUp, int cRepeat, UINT flags);
 
@@ -137,6 +143,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	mainWindowHandle = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
+	// Disable maximize button
+	SetWindowLong(mainWindowHandle, GWL_STYLE,
+		GetWindowLong(mainWindowHandle, GWL_STYLE) & ~WS_MAXIMIZEBOX);
 
 	if (!mainWindowHandle)
 	{
@@ -165,12 +174,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 		HANDLE_MSG(hWnd, WM_CREATE, OnCreate);
-		HANDLE_MSG(hWnd, WM_DESTROY, OnDestroy);
 		HANDLE_MSG(hWnd, WM_PAINT, OnPaint);
+		HANDLE_MSG(hWnd, WM_DESTROY, OnDestroy);
 		HANDLE_MSG(hWnd, WM_COMMAND, OnCommand);
-		HANDLE_MSG(hWnd, WM_CTLCOLORSTATIC, OnCtlColor);
 		HANDLE_MSG(hWnd, WM_KEYDOWN, OnKeyDown);
 		HANDLE_MSG(hWnd, WM_KEYUP, OnKeyUp);
+
 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -200,6 +209,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 bool OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
 {
+	// Resize the window
 	RECT rect1;
 	GetWindowRect(hWnd, &rect1);
 	RECT rect2;
@@ -228,37 +238,47 @@ void OnPaint(HWND hWnd)
 	// Initialize Paint
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
+	if (menu.getGameState() == false)
+	{
+		RECT rc;
+		GetClientRect(hWnd, &rc);
+		HDC memdc;
+		auto hbuff = BeginBufferedPaint(hdc, &rc, BPBF_COMPATIBLEBITMAP, NULL, &memdc);
 
-	MemoryBuffer(hWnd, hdc);
+		MemoryBuffer(hWnd, memdc);
+		EndBufferedPaint(hbuff, TRUE);
+	}
 
 
-	InvalidateRect(hWnd, nullptr, false);
 	EndPaint(hWnd, &ps);
+	InvalidateRect(hWnd, nullptr, false);
 }
 
 void OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify)
 {
 	switch (id)
 	{
-	case IDM_ABOUT:
-		DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+	case IDC_BUTTON_EXITGAME:
+		menu.setGameState(false);
+		menu.ToggleMenu(true, hWnd);
+		InvalidateRect(hWnd, nullptr, true);
 		break;
 
-	case IDM_EXIT:
+	case IDC_BUTTON_START:
+		menu.setGameState(true);
+		menu.ToggleMenu(false, hWnd);
+		InvalidateRect(hWnd, nullptr, true);
+		break;
+
+	case IDC_BUTTON_EXIT:
 		DestroyWindow(hWnd);
 		break;
 	}
-}
 
-HBRUSH OnCtlColor(HWND hWnd, HDC hdc, HWND hwndCtl, UINT)
-{
-	SetBkMode(hdc, TRANSPARENT);
-	return (HBRUSH)GetStockObject(NULL_BRUSH);
 }
 
 void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags)
 {
-
 	engine->KeyDown(vk);
 	InvalidateRect(hwnd, nullptr, false);
 }
@@ -276,11 +296,10 @@ void MemoryBuffer(HWND hwnd, HDC hdc)
 	Gdiplus::Graphics graphics(hdc);
 
 	// Initialize Double Buffer where we draw everything on Bitmap first
-	Gdiplus::Bitmap buffer(RESOLUTION_X, RESOLUTION_Y, PixelFormat32bppPARGB);
-	Gdiplus::Graphics memGraphics(&buffer);
+	Gdiplus::Bitmap* buffer = new Gdiplus::Bitmap(RESOLUTION_X, RESOLUTION_Y, PixelFormat32bppPARGB);
+	Gdiplus::Graphics memGraphics(buffer);
 
 	// Initialize Game Elapsed Time
-
 	end = std::chrono::steady_clock::now();
 	double delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
 	begin = end;
@@ -289,11 +308,14 @@ void MemoryBuffer(HWND hwnd, HDC hdc)
 	// Draw everything to gBuffer
 	engine->Logic(delta);
 	engine->Draw(memGraphics);
-
-
-	//graphics.Clear(Gdiplus::Color::Transparent);
 	// Initialize the main graphic window
-	graphics.Clear(Gdiplus::Color(255, 255, 255));
-	graphics.DrawImage(&buffer, 0, 0);
+	graphics.Clear(Gdiplus::Color(153, 255, 255));
+	menu.CreateMenu(hwnd, memGraphics);
+	graphics.DrawImage(buffer, 0, 0);
+
+	// Clean up
+	delete buffer;
+	buffer = nullptr;
+
 	//InvalidateRect(hwnd, nullptr, 0);
 }

@@ -100,20 +100,6 @@ void Character::Logic(const double& delta)
 
 }
 
-void Character::LoadBitmap(const LPCWSTR& file_path)
-{
-	Gdiplus::GdiplusStartupInput gpStartupInput;
-	ULONG_PTR gpToken;
-	GdiplusStartup(&gpToken, &gpStartupInput, NULL);
-	Gdiplus::Bitmap* bitmap = Gdiplus::Bitmap::FromFile(file_path, false);
-	if (bitmap)
-	{
-		bitmap->GetHBITMAP(Gdiplus::Color(255, 255, 255), &charBitmap);
-		delete bitmap;
-	}
-	Gdiplus::GdiplusShutdown(gpToken);
-}
-
 void Character::Jump(const bool& flag)
 {
 	if (!dead)
@@ -180,60 +166,90 @@ void Character::bottomCollision(const double& pos)
 
 void Character::Draw(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::Image imgCharacter(L"characters.png");
+	Gdiplus::Image imgCharacter(L"maincharacter.png");
 	Gdiplus::Graphics g(&imgCharacter);
 
-	graphics.DrawImage(&imgCharacter, int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT), CHARACTER_WIDTH, CHARACTER_HEIGHT);
-	/*LoadBitmapW(L"characters.png");
-	if (!charBitmap)
-		MessageBox(nullptr, L"Can't locate character bitmap", nullptr, 0);
 
+	// Determine the state of character to draw
+	int posX = 1;
+	int posY = 1;
+	int sprite_gap_x = 1;
+	int off_set_running_backward = 0;
+	int dead_sprite_gap = 0;
 
-	HBITMAP hNewBmp = nullptr;
-	HDC compDc;
-	BITMAP bmp;
-
-	compDc = CreateCompatibleDC(hdc);
-	hNewBmp = charBitmap;
-	SelectObject(compDc, charBitmap);
-
-	if (charBitmap)
+	// If character is facing foward
+	if (isFaceFoward)
 	{
-		SetMapMode(hdc, GetMapMode(hdc));
-		GetObject(charBitmap, sizeof(BITMAP), (LPSTR)&bmp);
+		if ((position.y != prevPosition.y))
+		{ // if character in a jump
+			posX = 1;
+			posY = 360;
+		}
 
+		else if (position.x == prevPosition.x)
+		{ //if character isn't moving
+			posX = rand() % 3 + 1;
+			posY = 1;
+			sprite_gap_x = 75;
+		}
 
-		BitBlt(hdc,
-			int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT), CHARACTER_WIDTH, CHARACTER_TILE_HEIGHT,
-			compDc,
-			0, 0,
-			SRCAND);
+		else if (position.x != prevPosition.x)
+		{ // if character is moving on the ground
+			posY = 120;
+			posX = (int)position.x % 100 / 33;
+			sprite_gap_x = 80;
+		}
 
-		BitBlt(hdc,
-			0, CHARACTER_TILE_HEIGHT, CHARACTER_WIDTH, CHARACTER_TILE_HEIGHT,
-			compDc,
-			0, 0,
-			SRCPAINT);
-
-
-		SelectObject(compDc, hNewBmp);
+		if (dead)
+		{
+			posX = 190;
+			posY = 530;
+			dead_sprite_gap = 30;
+		}
 	}
-	DeleteDC(compDc);*/
 
+	// If character is facing backward
+	else
+	{
+		if ((position.y != prevPosition.y))
+		{ // if character is in a jump
+			posX = 500;
+			posY = 360;
+		}
+
+		else if ((position.x == prevPosition.x))
+		{ // if character isn't moving
+			posX = rand() % 3 + 4;
+			posY = 1;
+			sprite_gap_x = 75;
+
+		}
+
+		else if ((position.x != prevPosition.x))
+		{ // if character is moving on the ground
+			posY = 120;
+			posX = (int)position.x % 100 / 33;
+			sprite_gap_x = 80;
+			off_set_running_backward = 240;
+		}
+
+		if (dead)
+		{
+			posX = 300;
+			posY = 530;
+			dead_sprite_gap = 30;
+		}
+	}
+
+	// Destination Rect (window screen position)
+	Gdiplus::Rect destinationRect(float(position.x - Engine::offset - CHARACTER_WIDTH / 2), float(position.y - CHARACTER_TILE_HEIGHT),
+		CHARACTER_WIDTH + dead_sprite_gap, CHARACTER_HEIGHT + 10);
+
+
+	// Draw Image into the buffer
+	graphics.DrawImage(&imgCharacter,
+		destinationRect,
+		off_set_running_backward + posX * sprite_gap_x, posY,
+		CHARACTER_WIDTH + dead_sprite_gap, CHARACTER_HEIGHT,
+		Gdiplus::Unit::UnitPixel);
 }
-
-
-//Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-//ULONG_PTR gdiplusToken;
-//GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
-
-//Gdiplus::Graphics graphics(hdc);
-//Gdiplus::Image* image = new Gdiplus::Image(L"characters.png");
-
-//if (image == nullptr)
-//	MessageBox(nullptr, L"Can't locate the image", nullptr, 0);
-
-//graphics.DrawImage(image, CHARACTER_WIDTH, CHARACTER_HEIGHT);
-
-//delete image;
-//Gdiplus::GdiplusShutdown(gdiplusToken);

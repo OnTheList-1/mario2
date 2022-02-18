@@ -55,6 +55,9 @@ void Engine::Logic(const double& delta)
 		character->GoesLeft = leftKeyPressed;
 		character->GoesRight = rightKeyPressed;
 
+		// Pick up coins
+		platform->CollectCoins(character);
+
 		// if we collide with tiles
 		Collision cd = platform->CharacterCollide(character);
 		if (cd.bottom > 0)
