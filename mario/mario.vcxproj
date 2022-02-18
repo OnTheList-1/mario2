@@ -147,6 +147,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="mario.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Resource.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="EngineBase.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="mario.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Platform.cpp" />
   </ItemGroup>
   <ItemGroup>

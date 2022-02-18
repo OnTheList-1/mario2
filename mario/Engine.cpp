@@ -8,13 +8,13 @@ double Engine::offset = 0;
 
 Engine::Engine()
 {
-	// Initialize Platform
-	platform = new Platform();
-	AddGameObject(platform);
-
 	// Initialize Character
 	character = new Character();
 	AddGameObject(character);
+
+	// Initialize Platform
+	platform = new Platform();
+	AddGameObject(platform);
 
 	leftKeyPressed = false;
 	rightKeyPressed = false;
@@ -54,6 +54,9 @@ void Engine::Logic(const double& delta)
 
 		character->GoesLeft = leftKeyPressed;
 		character->GoesRight = rightKeyPressed;
+
+		// Pick up coins
+		platform->CollectCoins(character);
 
 		// if we collide with tiles
 		Collision cd = platform->CharacterCollide(character);

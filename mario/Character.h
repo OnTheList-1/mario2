@@ -11,7 +11,6 @@ public:
 
 	HBITMAP getBitmap();
 
-	void LoadBitmap(const LPCWSTR&);
 	void Logic(const double&) override;
 	void Draw(Gdiplus::Graphics&) override;
 
