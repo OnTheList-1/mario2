@@ -3,6 +3,7 @@
 #include "framework.h"
 #include "EngineBase.h"
 #include "GameObject.h"
+#include "State.h"
 
 class Character : public GameObject
 {
@@ -11,7 +12,7 @@ public:
 
 	HBITMAP getBitmap();
 
-	void Logic(const double&) override;
+	void Logic(const double&, State*) override;
 	void Draw(Gdiplus::Graphics&) override;
 
 	void Jump(const bool&);

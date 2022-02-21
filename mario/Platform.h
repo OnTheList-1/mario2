@@ -8,6 +8,7 @@ class Character;
 #include "Collision.h"
 #include "EngineBase.h"
 #include "GameObject.h"
+#include <vector>
 
 class Platform : public GameObject
 {
@@ -16,8 +17,13 @@ public:
 
 	void Draw(Gdiplus::Graphics&) override;
 	Collision CharacterCollide(Character* character);
-	int CollectCoins(Character*);
+	int CollectCoins(Character* character);
+	bool AtPortal(Character* character);
 
+	void LoadNextMap(const int&);
+	void NextRound();
+	void ResetGame();
+	int GetStage();
 private:
 	int PlatformMatrix[PLATFORM_HEIGHT][PLATFORM_WIDTH];
 	int PlatformSolids[PLATFORM_HEIGHT][PLATFORM_WIDTH];
@@ -25,6 +31,7 @@ private:
 
 	bool tileIsSolid(const int& tileNumber);
 	bool tileIsCoin(const int& tileNumber);
+	int stage;
 
 
 	int solids[34] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 31, 32, 33, 34, 41, 42, 43, 44, 49, 50 };
@@ -32,4 +39,6 @@ private:
 
 	HBITMAP tileSetImg;
 	HBITMAP cloudsImg;
+
+	std::vector<std::string> MapFiles;
 };
