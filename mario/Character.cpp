@@ -2,6 +2,7 @@
 #include "Character.h"
 #include "Engine.h"
 #include "framework.h"
+#include "State.h"
 
 Character::Character()
 {
@@ -33,7 +34,7 @@ bool Character::IsDead()
 	return this->dead;
 }
 
-void Character::Logic(const double& delta)
+void Character::Logic(const double& delta, State* state)
 {
 	if (!dead)
 	{
@@ -70,13 +71,13 @@ void Character::Logic(const double& delta)
 			{
 				if (speed.x > 0)
 				{
-					speed.x -= 500 * delta;
+					speed.x -= 1000 * delta;
 					if (speed.x < 10)
 						speed.x = 0;
 				}
 				if (speed.x < 0)
 				{
-					speed.x += 500 * delta;
+					speed.x += 1000 * delta;
 					if (speed.x > -10)
 						speed.x = 0;
 				}
@@ -105,7 +106,7 @@ void Character::Jump(const bool& flag)
 	if (!dead)
 	{
 		if (flag)
-			speed.y = -700;
+			speed.y = -535;
 		else
 			speed.y = -400;
 	}
@@ -167,7 +168,6 @@ void Character::bottomCollision(const double& pos)
 void Character::Draw(Gdiplus::Graphics& graphics)
 {
 	Gdiplus::Image imgCharacter(L"maincharacter.png");
-	Gdiplus::Graphics g(&imgCharacter);
 
 
 	// Determine the state of character to draw
@@ -242,8 +242,11 @@ void Character::Draw(Gdiplus::Graphics& graphics)
 	}
 
 	// Destination Rect (window screen position)
-	Gdiplus::Rect destinationRect(float(position.x - Engine::offset - CHARACTER_WIDTH / 2), float(position.y - CHARACTER_TILE_HEIGHT),
-		CHARACTER_WIDTH + dead_sprite_gap, CHARACTER_HEIGHT + 10);
+	Gdiplus::Rect destinationRect(
+		int(position.x - Engine::offset - CHARACTER_WIDTH / 2),
+		int(position.y - CHARACTER_TILE_HEIGHT),
+		CHARACTER_WIDTH + dead_sprite_gap,
+		CHARACTER_HEIGHT + 10);
 
 
 	// Draw Image into the buffer

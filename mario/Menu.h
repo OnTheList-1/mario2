@@ -1,18 +1,27 @@
 #pragma once
+
+#include "resource.h"
 #include "framework.h"
+#include "State.h"
 
 class Menu
 {
 public:
 	Menu();
+	~Menu();
+
 	void CreateMenu(const HWND&, Gdiplus::Graphics&);
-	void ToggleMenu(const bool& flag, const HWND&);
-	bool getGameState() const;
-	void setGameState(const bool&);
+	void CreateGameOverMenu(const HWND&, Gdiplus::Graphics&);
+
+	void KeyDown(WPARAM, State*);
 
 private:
-	HBITMAP START_BUTTON;
-	HBITMAP EXIT_BUTTON;
+	const WCHAR* buttonImg;
 
-	bool GameState; // True if in game, false if at menu
+	bool startButtonSelected;
+	bool settingButtonSelected;
+	bool exitButtonSelected;
+
+	bool gameoverRestartSelected;
+	bool gameoverExitSelected;
 };

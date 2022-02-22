@@ -2,7 +2,7 @@
 #include "Resource.h"
 #include "Point.h"
 #include "GameObject.h"
-
+#include "State.h"
 
 class EngineBase
 {
@@ -18,7 +18,7 @@ public:
 	void AddGameObject(GameObject* gameObj);
 	void RemoveGameObject(GameObject* gameObj);
 
-	virtual void Logic(const double&);
+	virtual void Logic(const double&, State*);
 	void Draw(Gdiplus::Graphics&);
 
 	HBITMAP LoadImage(const LPCWSTR&);

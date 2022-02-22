@@ -4,10 +4,9 @@
 
 #include "framework.h"
 #include "mario.h"
-//#include "Character.h"
 #include "Engine.h"
 #include "Setting.h"
-#include "DoubleBuffering.h"
+#include "State.h"
 #include "Menu.h"
 
 #include <uxtheme.h>
@@ -27,8 +26,11 @@ void MemoryBuffer(HWND, HDC);
 // Initialize Engine
 Engine* engine = new Engine();
 
+// Initialize Game State
+State* state = new State();
+
 // Initialize Menu
-Menu menu;
+Menu* menu = new Menu();
 
 // Initialize Gdiplus
 Gdiplus::GdiplusStartupInput gdiplusStartupInput;
@@ -238,17 +240,14 @@ void OnPaint(HWND hWnd)
 	// Initialize Paint
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
-	if (menu.getGameState() == false)
-	{
-		RECT rc;
-		GetClientRect(hWnd, &rc);
-		HDC memdc;
-		auto hbuff = BeginBufferedPaint(hdc, &rc, BPBF_COMPATIBLEBITMAP, NULL, &memdc);
 
-		MemoryBuffer(hWnd, memdc);
-		EndBufferedPaint(hbuff, TRUE);
-	}
+	RECT rc;
+	GetClientRect(hWnd, &rc);
+	HDC memdc;
+	auto hbuff = BeginBufferedPaint(hdc, &rc, BPBF_COMPATIBLEBITMAP, NULL, &memdc);
 
+	MemoryBuffer(hWnd, memdc);
+	EndBufferedPaint(hbuff, TRUE);
 
 	EndPaint(hWnd, &ps);
 	InvalidateRect(hWnd, nullptr, false);
@@ -256,36 +255,22 @@ void OnPaint(HWND hWnd)
 
 void OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify)
 {
-	switch (id)
-	{
-	case IDC_BUTTON_EXITGAME:
-		menu.setGameState(false);
-		menu.ToggleMenu(true, hWnd);
-		InvalidateRect(hWnd, nullptr, true);
-		break;
-
-	case IDC_BUTTON_START:
-		menu.setGameState(true);
-		menu.ToggleMenu(false, hWnd);
-		InvalidateRect(hWnd, nullptr, true);
-		break;
-
-	case IDC_BUTTON_EXIT:
-		DestroyWindow(hWnd);
-		break;
-	}
 
 }
 
 void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags)
 {
-	engine->KeyDown(vk);
+	if (state->getState() == 1)
+		engine->KeyDown(vk);
+	menu->KeyDown(vk, state);
 	InvalidateRect(hwnd, nullptr, false);
 }
 
 void OnKeyUp(HWND hwnd, UINT vk, BOOL fUp, int cRepeat, UINT flags)
 {
-	engine->KeyUp(vk);
+	if (state->getState() == 1)
+		engine->KeyUp(vk, state);
+
 	InvalidateRect(hwnd, nullptr, false);
 
 }
@@ -304,13 +289,24 @@ void MemoryBuffer(HWND hwnd, HDC hdc)
 	double delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
 	begin = end;
 
-
-	// Draw everything to gBuffer
-	engine->Logic(delta);
-	engine->Draw(memGraphics);
-	// Initialize the main graphic window
 	graphics.Clear(Gdiplus::Color(153, 255, 255));
-	menu.CreateMenu(hwnd, memGraphics);
+	engine->Draw(memGraphics);
+
+	// Check state of the game
+	if (state->getState() == 0)
+	{
+		menu->CreateMenu(hwnd, memGraphics);
+	}
+	else if (state->getState() == 1)
+	{ // without logic everything will be paused
+		engine->Logic(delta, state);
+	}
+	else if (state->getState() == 2)
+	{
+		menu->CreateGameOverMenu(hwnd, memGraphics);
+
+	}
+
 	graphics.DrawImage(buffer, 0, 0);
 
 	// Clean up

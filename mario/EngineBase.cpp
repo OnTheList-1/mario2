@@ -38,10 +38,10 @@ void EngineBase::RemoveGameObject(GameObject* gameObject)
 	listObject.remove(gameObject);
 }
 
-void EngineBase::Logic(const double& delta)
+void EngineBase::Logic(const double& delta, State* state)
 {
 	for (const auto& itr : listObject)
-		itr->Logic(delta);
+		itr->Logic(delta, state);
 }
 
 void EngineBase::Draw(Gdiplus::Graphics& graphics)
