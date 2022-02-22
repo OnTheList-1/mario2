@@ -168,7 +168,6 @@ void Character::bottomCollision(const double& pos)
 void Character::Draw(Gdiplus::Graphics& graphics)
 {
 	Gdiplus::Image imgCharacter(L"maincharacter.png");
-	Gdiplus::Graphics g(&imgCharacter);
 
 
 	// Determine the state of character to draw
@@ -243,8 +242,11 @@ void Character::Draw(Gdiplus::Graphics& graphics)
 	}
 
 	// Destination Rect (window screen position)
-	Gdiplus::Rect destinationRect(int(position.x - Engine::offset - CHARACTER_WIDTH / 2), int(position.y - CHARACTER_TILE_HEIGHT),
-		CHARACTER_WIDTH + dead_sprite_gap, CHARACTER_HEIGHT + 10);
+	Gdiplus::Rect destinationRect(
+		int(position.x - Engine::offset - CHARACTER_WIDTH / 2),
+		int(position.y - CHARACTER_TILE_HEIGHT),
+		CHARACTER_WIDTH + dead_sprite_gap,
+		CHARACTER_HEIGHT + 10);
 
 
 	// Draw Image into the buffer

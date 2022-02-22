@@ -4,7 +4,6 @@
 
 #include "framework.h"
 #include "mario.h"
-//#include "Character.h"
 #include "Engine.h"
 #include "Setting.h"
 #include "State.h"

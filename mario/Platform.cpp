@@ -21,6 +21,9 @@ Platform::Platform()
 			PlatformMatrix[i][j] = -1;
 			PlatformSolids[i][j] = false;
 			PlatformCoins[i][j] = false;
+			PlatformPotion1[i][j] = false;
+			PlatformPotion2[i][j] = false;
+			PlatformPotion3[i][j] = false;
 		}
 	}
 
@@ -35,6 +38,9 @@ Platform::Platform()
 				my_file >> PlatformMatrix[i][j];
 				PlatformSolids[i][j] = tileIsSolid(PlatformMatrix[i][j]);
 				PlatformCoins[i][j] = tileIsCoin(PlatformMatrix[i][j]);
+				PlatformPotion1[i][j] = tileIsSpeedPotion(PlatformMatrix[i][j]);
+				PlatformPotion2[i][j] = tileIsInvinciblePotion(PlatformMatrix[i][j]);
+				PlatformPotion3[i][j] = tileIsSteroidPotion(PlatformMatrix[i][j]);
 			}
 		}
 	}
@@ -52,6 +58,9 @@ void Platform::LoadNextMap(const int& stage)
 			PlatformMatrix[i][j] = -1;
 			PlatformSolids[i][j] = false;
 			PlatformCoins[i][j] = false;
+			PlatformPotion1[i][j] = false;
+			PlatformPotion2[i][j] = false;
+			PlatformPotion3[i][j] = false;
 		}
 	}
 
@@ -65,6 +74,9 @@ void Platform::LoadNextMap(const int& stage)
 				my_file >> PlatformMatrix[i][j];
 				PlatformSolids[i][j] = tileIsSolid(PlatformMatrix[i][j]);
 				PlatformCoins[i][j] = tileIsCoin(PlatformMatrix[i][j]);
+				PlatformPotion1[i][j] = tileIsSpeedPotion(PlatformMatrix[i][j]);
+				PlatformPotion2[i][j] = tileIsInvinciblePotion(PlatformMatrix[i][j]);
+				PlatformPotion3[i][j] = tileIsSteroidPotion(PlatformMatrix[i][j]);
 			}
 		}
 	}
@@ -88,13 +100,9 @@ void Platform::ResetGame()
 
 bool Platform::tileIsCoin(const int& tileNo)
 {
-	for (int i = 0; i < 8; i++)
-	{
-		if (coins[i] == tileNo)
-		{
-			return true;
-		}
-	}
+	if (items[0] == tileNo)
+		return true;
+
 	return false;
 }
 
@@ -105,6 +113,27 @@ bool Platform::tileIsSolid(const int& tileNumber)
 		if (solids[i] == tileNumber)
 			return true;
 	}
+	return false;
+}
+
+bool Platform::tileIsInvinciblePotion(const int& tileNumber)
+{
+	if (items[2]) //green potion
+		return true;
+	return false;
+}
+
+bool Platform::tileIsSpeedPotion(const int& tileNumber)
+{
+	if (items[3]) //purple potion
+		return true;
+	return false;
+}
+
+bool Platform::tileIsSteroidPotion(const int& tileNumber)
+{
+	if (items[6]) //brown potion
+		return true;
 	return false;
 }
 
@@ -295,6 +324,49 @@ int Platform::CollectCoins(Character* character)
 	}
 
 	return noCollisions;
+}
+
+void Platform::CollectPotion1(Character* character)
+{
+	// this method checks for collisions with coins and returns the number
+	double charTop = character->getPosition().y - CHARACTER_HEIGHT;
+	double charBottom = character->getPosition().y;
+	double charLeft = character->getPosition().x - CHARACTER_WIDTH / 2 + 3;
+	double charRight = character->getPosition().x + CHARACTER_WIDTH / 2 - 4;
+
+	int startX = (int)(charLeft / TILE_WIDTH);
+	if (startX < 0)
+		startX = 0;
+	int startY = (int)(charTop / TILE_WIDTH);
+	if (startY < 0)
+		startY = 0;
+	int endX = (int)(charRight / TILE_WIDTH);
+	if (endX > PLATFORM_WIDTH - 1)
+		endX = PLATFORM_WIDTH - 1;
+	int endY = (int)(charBottom / TILE_WIDTH);
+	if (endY > PLATFORM_HEIGHT - 1)
+		endY = PLATFORM_HEIGHT - 1;
+
+	for (int i = startY; i <= endY; i++)
+	{
+		for (int j = startX; j <= endX; j++)
+		{
+			if (PlatformPotion1[i][j])
+			{
+				double tileTop = i * TILE_WIDTH;
+				double tileBottom = (i + 1) * TILE_WIDTH - 1;
+				double tileLeft = j * TILE_WIDTH;
+				double tileRight = (j + 1) * TILE_WIDTH - 1;
+
+				// If it's a collision
+				if (charTop < tileBottom && charBottom > tileTop && charRight > tileLeft && charLeft < tileRight)
+				{
+					PlatformMatrix[i][j] = -1; // remove the coin by resetting the tile position
+					PlatformPotion1[i][j] = false;
+				}
+			}
+		}
+	}
 }
 
 bool Platform::AtPortal(Character* character)

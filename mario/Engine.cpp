@@ -4,6 +4,7 @@
 #include "EngineBase.h"
 #include "Engine.h"
 #include "GUI.h"
+#include "Monster.h"
 
 double Engine::offset = 0;
 
@@ -17,9 +18,14 @@ Engine::Engine()
 	platform = new Platform();
 	AddGameObject(platform);
 
+	// Initialize Monsters
+	LoadMonsters(platform->GetStage());
+
 	// Initialize GUI
 	gui = new GUI();
 	AddGameObject(gui);
+
+
 
 	leftKeyPressed = false;
 	rightKeyPressed = false;
@@ -53,6 +59,56 @@ void Engine::KeyUp(WPARAM wParam, State* state)
 		state->setState(0);
 }
 
+void Engine::LoadMonsters(const int& stage)
+{
+	switch (stage)
+	{ // Load in different monsters' attribute depending on the stage
+	case 0: // stage 1
+		numberOfMonsters = 4;
+		monsters[0] = new Monster(480, 350, 570, 1);
+		AddGameObject(monsters[0]);
+		monsters[1] = new Monster(1475, 150, 1525, 0);
+		AddGameObject(monsters[1]);
+		monsters[2] = new Monster(3275, 300, 3475, 1);
+		AddGameObject(monsters[2]);
+		monsters[3] = new Monster(2500, 250, 2700, 7);
+		AddGameObject(monsters[3]);
+		break;
+
+	case 1: // stage 2
+		numberOfMonsters = 4;
+		monsters[0] = new Monster(1020, 400, 1085, 0);
+		AddGameObject(monsters[0]);
+		monsters[1] = new Monster(1300, 350, 1525, 7);
+		AddGameObject(monsters[1]);
+		monsters[2] = new Monster(3305, 300, 3460, 1);
+		AddGameObject(monsters[2]);
+		monsters[3] = new Monster(3810, 350, 3970, 7);
+		AddGameObject(monsters[3]);
+		break;
+
+	case 2: // stage 3
+		numberOfMonsters = 4;
+		monsters[0] = new Monster(1085, 350, 1220, 0);
+		AddGameObject(monsters[0]);
+		monsters[1] = new Monster(1300, 350, 1525, 7);
+		AddGameObject(monsters[1]);
+		monsters[2] = new Monster(3305, 350, 3460, 1);
+		AddGameObject(monsters[2]);
+		monsters[3] = new Monster(3810, 350, 3970, 7);
+		AddGameObject(monsters[3]);
+		break;
+	}
+}
+
+void Engine::ClearMonsters()
+{
+	for (int i = 0; i < numberOfMonsters; ++i)
+	{
+		RemoveGameObject(monsters[i]);
+	}
+
+}
 
 void Engine::Logic(const double& delta, State* state)
 {
@@ -80,7 +136,6 @@ void Engine::Logic(const double& delta, State* state)
 					character->Jump(true);
 					spaceKeyPressed = false;
 				}
-
 			}
 			if (cd.left > 0) // left collision
 				character->leftCollision(cd.left);
@@ -90,6 +145,30 @@ void Engine::Logic(const double& delta, State* state)
 
 			if (cd.top > 0) // top collision
 				character->topCollision();
+
+			for (int i = 0; i < numberOfMonsters; ++i)
+			{ // check for collision with monsters
+				Collision cd = monsters[i]->CharacterCollide(character);
+				if (cd.bottom > 0)
+				{ // if we jump and landed on a monster
+					Monster* oldMonster = monsters[i];
+					for (int j = i; j < numberOfMonsters - 1; ++j)
+					{
+						monsters[j] = monsters[j + 1];
+					}
+					monsters[numberOfMonsters - 1] = nullptr;
+					RemoveGameObject(oldMonster);
+					delete oldMonster;
+					//oldMonster = nullptr;
+					--numberOfMonsters;
+					character->Jump(false);
+				}
+				else if (cd.left > 0 || cd.right > 0 || cd.top > 0)
+				{
+					character->setDead();
+					gui->removeLife();
+				}
+			}
 
 			if (character->getPosition().y > RESOLUTION_Y) // check if user is off the platform
 			{
@@ -102,6 +181,8 @@ void Engine::Logic(const double& delta, State* state)
 				gui->completeRound();
 				platform->NextRound();
 				platform->LoadNextMap(platform->GetStage());
+				ClearMonsters();
+				LoadMonsters(platform->GetStage());
 				character->reset();
 			}
 
@@ -117,14 +198,16 @@ void Engine::Logic(const double& delta, State* state)
 		{ // if character is dead then it float up
 			if (character->getPosition().y < 0 && gui->hasLives())
 				character->reset();
-			else if (gui->hasLives() < 1)
+			else if (gui->hasLives() == false)
 			{ // reset map & update stage
-				//gui->ResetRound();
-				//gui->ResetCoins();
-				//gui->ResetLives();
+				gui->ResetRound();
+				gui->ResetCoins();
+				gui->ResetLives();
 				state->setState(2);
 				platform->ResetGame();
 				platform->LoadNextMap(platform->GetStage());
+				ClearMonsters();
+				LoadMonsters(platform->GetStage());
 				character->reset();
 			}
 		}
