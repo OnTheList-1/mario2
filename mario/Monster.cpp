@@ -65,7 +65,7 @@ void Monster::Draw(Gdiplus::Graphics& graphics)
 	Gdiplus::Image monsterImg(L"monster.png");
 
 	Gdiplus::Rect destinationRect(
-		(int)position.x - Engine::offset - MONSTER_WIDTH / 2, (int)position.y - MONSTER_HEIGHT,
+		(int)position.x - (int)Engine::offset - MONSTER_WIDTH / 2, (int)position.y - MONSTER_HEIGHT,
 		MONSTER_WIDTH, MONSTER_HEIGHT);
 
 	int posX = (int)position.x % 20 / 10 + (isFaceFoward ? 2 : 0);

@@ -7,6 +7,7 @@
 #include "GUI.h"
 #include "State.h"
 #include "Monster.h"
+#include <irrKlang.h>
 
 
 class Engine : public EngineBase

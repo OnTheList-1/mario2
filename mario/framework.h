@@ -18,6 +18,8 @@
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
 
+#include <mmsystem.h>
+#include <dsound.h>
 
 #include <chrono>
 #include <fstream>

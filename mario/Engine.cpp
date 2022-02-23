@@ -26,7 +26,6 @@ Engine::Engine()
 	AddGameObject(gui);
 
 
-
 	leftKeyPressed = false;
 	rightKeyPressed = false;
 	spaceKeyPressed = false;
