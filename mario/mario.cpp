@@ -8,9 +8,11 @@
 #include "Setting.h"
 #include "State.h"
 #include "Menu.h"
+#include <irrKlang.h>
 
 #include <uxtheme.h>
 #pragma comment (lib, "uxtheme.lib")
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 #define MAX_LOADSTRING 100
 
@@ -39,6 +41,9 @@ ULONG_PTR gdiplusToken;
 // Initialize Server Time
 std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+// Initialize Sound System
+irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -88,9 +93,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-
-			// after amount of time
-			// send a wm_paint message
 		}
 	}
 
@@ -189,26 +191,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
-}
-
 bool OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
 {
 	// Resize the window
@@ -226,6 +208,8 @@ bool OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
 		RESOLUTION_Y + ((rect1.bottom - rect1.top) - (rect2.bottom - rect2.top)),
 		NULL
 	);
+
+	soundEngine->play2D("sound/backgroundsound.wav", true);
 
 	return true;
 }
@@ -312,6 +296,5 @@ void MemoryBuffer(HWND hwnd, HDC hdc)
 	// Clean up
 	delete buffer;
 	buffer = nullptr;
-
 	//InvalidateRect(hwnd, nullptr, 0);
 }
