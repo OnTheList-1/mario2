@@ -9,6 +9,7 @@ class Character;
 #include "EngineBase.h"
 #include "GameObject.h"
 #include <vector>
+#include <irrKlang.h>
 
 class Platform : public GameObject
 {
@@ -48,6 +49,9 @@ private:
 
 	HBITMAP tileSetImg;
 	HBITMAP cloudsImg;
+
+	irrklang::ISoundEngine* m_soundEngine;
+	irrklang::ISoundSource* m_collectCoinSound;
 
 	std::vector<std::string> MapFiles;
 };

@@ -25,6 +25,28 @@ Engine::Engine()
 	gui = new GUI();
 	AddGameObject(gui);
 
+	// Initialize Sound Engine
+	m_soundEngine = irrklang::createIrrKlangDevice();
+	m_jumpSound = m_soundEngine->addSoundSourceFromFile("sound/jump.wav");
+	m_landOnMonsterSound = m_soundEngine->addSoundSourceFromFile("sound/monsterkilled.wav");
+	m_themeSound = m_soundEngine->addSoundSourceFromFile("sound/goldrush.wav");
+	m_deadSound = m_soundEngine->addSoundSourceFromFile("sound/dead.wav");
+
+	m_jumpSound->setDefaultVolume(0.0f);
+	m_soundEngine->play2D(m_jumpSound);
+	m_jumpSound->setDefaultVolume(0.4f);
+
+	m_landOnMonsterSound->setDefaultVolume(0.0f);
+	m_soundEngine->play2D(m_landOnMonsterSound);
+	m_landOnMonsterSound->setDefaultVolume(0.4f);
+
+	m_deadSound->setDefaultVolume(0.0f);
+	m_soundEngine->play2D(m_deadSound);
+	m_deadSound->setDefaultVolume(0.4f);
+
+	m_soundEngine->setSoundVolume(1.0f);
+	m_soundEngine->play2D(m_themeSound, true);
+
 
 	leftKeyPressed = false;
 	rightKeyPressed = false;
@@ -134,6 +156,7 @@ void Engine::Logic(const double& delta, State* state)
 				{ // jump
 					character->Jump(true);
 					spaceKeyPressed = false;
+					m_soundEngine->play2D(m_jumpSound);
 				}
 			}
 			if (cd.left > 0) // left collision
@@ -155,6 +178,7 @@ void Engine::Logic(const double& delta, State* state)
 					{
 						monsters[j] = monsters[j + 1];
 					}
+					m_soundEngine->play2D(m_landOnMonsterSound);
 					monsters[numberOfMonsters - 1] = nullptr;
 					RemoveGameObject(oldMonster);
 					delete oldMonster;
@@ -164,6 +188,7 @@ void Engine::Logic(const double& delta, State* state)
 				}
 				else if (cd.left > 0 || cd.right > 0 || cd.top > 0)
 				{
+					m_soundEngine->play2D(m_deadSound);
 					character->setDead();
 					gui->removeLife();
 				}
@@ -171,6 +196,7 @@ void Engine::Logic(const double& delta, State* state)
 
 			if (character->getPosition().y > RESOLUTION_Y) // check if user is off the platform
 			{
+				m_soundEngine->play2D(m_deadSound);
 				character->setDead();
 				gui->removeLife();
 			}

@@ -46,6 +46,13 @@ Platform::Platform()
 	}
 	my_file.close();
 
+	m_soundEngine = irrklang::createIrrKlangDevice();
+	m_collectCoinSound = m_soundEngine->addSoundSourceFromFile("sound/collectcoins.wav");
+
+	m_collectCoinSound->setDefaultVolume(0.0f);
+	m_soundEngine->play2D(m_collectCoinSound);
+	m_collectCoinSound->setDefaultVolume(0.4f);
+
 }
 
 void Platform::LoadNextMap(const int& stage)
@@ -315,6 +322,7 @@ int Platform::CollectCoins(Character* character)
 				// If it's a collision
 				if (charTop < tileBottom && charBottom > tileTop && charRight > tileLeft && charLeft < tileRight)
 				{
+					m_soundEngine->play2D(m_collectCoinSound);
 					noCollisions++;
 					PlatformMatrix[i][j] = -1; // remove the coin by resetting the tile position
 					PlatformCoins[i][j] = false;

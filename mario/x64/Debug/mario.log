@@ -1,13 +1,2 @@
-﻿  Character.cpp
-  Engine.cpp
-  EngineBase.cpp
-  GameObject.cpp
-  mario.cpp
-  GUI.cpp
-  Menu.cpp
-  Monster.cpp
-C:\Users\nhiem.tran\source\repos\game\mario\mario\Monster.cpp(68,36): warning C4244: 'argument': conversion from 'double' to 'INT', possible loss of data
-  Platform.cpp
-  State.cpp
-  Generating Code...
+﻿  mario.cpp
   mario.vcxproj -> C:\Users\nhiem.tran\source\repos\game\mario\x64\Debug\mario.exe
