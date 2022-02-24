@@ -30,6 +30,12 @@ private:
 	Monster* monsters[MONSTER_POPULATION]; // maximum 6 monsters by default
 	int numberOfMonsters;
 
+	irrklang::ISoundEngine* m_soundEngine;
+	irrklang::ISoundSource* m_jumpSound;
+	irrklang::ISoundSource* m_landOnMonsterSound;
+	irrklang::ISoundSource* m_themeSound;
+	irrklang::ISoundSource* m_deadSound;
+
 	GUI* gui;
 
 	bool leftKeyPressed;

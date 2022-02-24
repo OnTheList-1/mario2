@@ -42,9 +42,6 @@ ULONG_PTR gdiplusToken;
 std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-// Initialize Sound System
-irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
-
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -209,7 +206,6 @@ bool OnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
 		NULL
 	);
 
-	soundEngine->play2D("sound/backgroundsound.wav", true);
 
 	return true;
 }
@@ -288,7 +284,6 @@ void MemoryBuffer(HWND hwnd, HDC hdc)
 	else if (state->getState() == 2)
 	{
 		menu->CreateGameOverMenu(hwnd, memGraphics);
-
 	}
 
 	graphics.DrawImage(buffer, 0, 0);
